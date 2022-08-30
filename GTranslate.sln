@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32819.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTranslate", "GTranslate\GTranslate.csproj", "{6EB9ED73-5511-45E3-AD61-16C0067C68C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTest", "GTest\GTest.csproj", "{0547475D-AD90-4476-961A-1C17AD979963}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6EB9ED73-5511-45E3-AD61-16C0067C68C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EB9ED73-5511-45E3-AD61-16C0067C68C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EB9ED73-5511-45E3-AD61-16C0067C68C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EB9ED73-5511-45E3-AD61-16C0067C68C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0547475D-AD90-4476-961A-1C17AD979963}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0547475D-AD90-4476-961A-1C17AD979963}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0547475D-AD90-4476-961A-1C17AD979963}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0547475D-AD90-4476-961A-1C17AD979963}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DEB752CC-20B4-41A9-BCAA-8FC2DB77DFB9}
+	EndGlobalSection
+EndGlobal
