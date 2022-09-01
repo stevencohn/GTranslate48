@@ -11,6 +11,8 @@ namespace GTranslate.Translators;
 /// </summary>
 public sealed class AggregateTranslator : ITranslator, IDisposable
 {
+    public static bool STA { get; set; } = false;
+
     /// <inheritdoc/>
     public string Name => nameof(AggregateTranslator);
 
@@ -24,6 +26,15 @@ public sealed class AggregateTranslator : ITranslator, IDisposable
         : this(new GoogleTranslator(), new GoogleTranslator2(), new MicrosoftTranslator(), new YandexTranslator(), new BingTranslator())
     {
     }
+
+
+    public AggregateTranslator(bool sta)
+		: this(new GoogleTranslator(), new GoogleTranslator2(),
+              new MicrosoftTranslator(), new YandexTranslator(), new BingTranslator())
+	{
+        STA = sta;
+	}
+
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AggregateTranslator"/> class with the specified translators.
@@ -95,7 +106,7 @@ public sealed class AggregateTranslator : ITranslator, IDisposable
 
             try
             {
-                return await translator.TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+                return await translator.TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
             }
             catch (Exception e)
             {
@@ -125,7 +136,7 @@ public sealed class AggregateTranslator : ITranslator, IDisposable
 
             try
             {
-                return await translator.TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+                return await translator.TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
             }
             catch (Exception e)
             {
@@ -158,7 +169,7 @@ public sealed class AggregateTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageFound(toLanguage, out var toLang, "Unknown target language.");
         TranslatorGuards.LanguageFound(fromLanguage, out var fromLang, "Unknown source language.");
 
-        return await TransliterateAsync(text, toLang, fromLang).ConfigureAwait(false);
+        return await TransliterateAsync(text, toLang, fromLang).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TransliterateAsync(string, string, string)"/>
@@ -179,7 +190,7 @@ public sealed class AggregateTranslator : ITranslator, IDisposable
 
             try
             {
-                return await translator.TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+                return await translator.TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
             }
             catch (Exception e)
             {
@@ -210,7 +221,7 @@ public sealed class AggregateTranslator : ITranslator, IDisposable
         {
             try
             {
-                return await translator.DetectLanguageAsync(text).ConfigureAwait(false);
+                return await translator.DetectLanguageAsync(text).ConfigureAwait(AggregateTranslator.STA);
             }
             catch (Exception e)
             {

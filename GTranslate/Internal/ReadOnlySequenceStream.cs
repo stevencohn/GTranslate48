@@ -161,7 +161,7 @@ internal class ReadOnlySequenceStream : Stream
     {
         foreach (var segment in _readOnlySequence)
         {
-            await destination.WriteAsync(segment, cancellationToken).ConfigureAwait(false);
+            await destination.WriteAsync(segment, cancellationToken).ConfigureAwait(AggregateTranslator.STA);
         }
     }
 

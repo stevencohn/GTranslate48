@@ -86,7 +86,7 @@ public sealed class YandexTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageFound(fromLanguage, out var fromLang, "Unknown source language.");
         TranslatorGuards.LanguageSupported(this, toLang, fromLang);
 
-        return await TranslateAsync(text, toLang, fromLang).ConfigureAwait(false);
+        return await TranslateAsync(text, toLang, fromLang).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TranslateAsync(string, string, string)"/>
@@ -108,10 +108,10 @@ public sealed class YandexTranslator : ITranslator, IDisposable
         };
 
         using var content = new FormUrlEncodedContent(data);
-        using var response = await _httpClient.PostAsync(new Uri($"{_apiUrl}/translate{query}"), content).ConfigureAwait(false);
-        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        using var response = await _httpClient.PostAsync(new Uri($"{_apiUrl}/translate{query}"), content).ConfigureAwait(AggregateTranslator.STA);
+        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
 
-        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(AggregateTranslator.STA);
 
         ThrowIfStatusCodeIsPresent(document.RootElement);
 
@@ -158,7 +158,7 @@ public sealed class YandexTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageFound(fromLanguage, out var fromLang, "Unknown source language.");
         TranslatorGuards.LanguageSupported(this, toLang, fromLang);
 
-        return await TransliterateAsync(text, toLang, fromLang).ConfigureAwait(false);
+        return await TransliterateAsync(text, toLang, fromLang).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TransliterateAsync(string, string, string)"/>
@@ -170,7 +170,7 @@ public sealed class YandexTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageSupported(this, toLanguage, fromLanguage);
 
         // It seems like the source language is required for transliterations
-        fromLanguage ??= await DetectLanguageAsync(text).ConfigureAwait(false);
+        fromLanguage ??= await DetectLanguageAsync(text).ConfigureAwait(AggregateTranslator.STA);
 
         var data = new Dictionary<string, string>
         {
@@ -179,8 +179,8 @@ public sealed class YandexTranslator : ITranslator, IDisposable
         };
 
         using var content = new FormUrlEncodedContent(data);
-        using var response = await _httpClient.PostAsync(_transliterationApiUri, content).ConfigureAwait(false);
-        string result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        using var response = await _httpClient.PostAsync(_transliterationApiUri, content).ConfigureAwait(AggregateTranslator.STA);
+        string result = await response.Content.ReadAsStringAsync().ConfigureAwait(AggregateTranslator.STA);
 
         if (response.StatusCode == HttpStatusCode.BadRequest)
         {
@@ -225,10 +225,10 @@ public sealed class YandexTranslator : ITranslator, IDisposable
             Content = content
         };
 
-        using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
-        var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request).ConfigureAwait(AggregateTranslator.STA);
+        var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
 
-        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(AggregateTranslator.STA);
 
         ThrowIfStatusCodeIsPresent(document.RootElement);
 
@@ -260,7 +260,7 @@ public sealed class YandexTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageFound(language, out var lang);
         EnsureValidTTSLanguage(lang);
 
-        return await TextToSpeechAsync(text, lang, speed).ConfigureAwait(false);
+        return await TextToSpeechAsync(text, lang, speed).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TextToSpeechAsync(string, string, float)"/>
@@ -274,10 +274,10 @@ public sealed class YandexTranslator : ITranslator, IDisposable
         string url = $"https://tts.voicetech.yandex.net/tts?text={Uri.EscapeDataString(text)}&lang={YandexTTSHotPatch(language.ISO6391)}&speed={speed}&format=mp3&quality=hi&platform=android&application=translate";
         using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url));
 
-        var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+        var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(AggregateTranslator.STA);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        return await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <summary>
@@ -305,22 +305,22 @@ public sealed class YandexTranslator : ITranslator, IDisposable
 
     /// <inheritdoc cref="TranslateAsync(string, string, string)"/>
     async Task<ITranslationResult> ITranslator.TranslateAsync(string text, string toLanguage, string? fromLanguage)
-        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="TranslateAsync(string, ILanguage, ILanguage)"/>
     async Task<ITranslationResult> ITranslator.TranslateAsync(string text, ILanguage toLanguage, ILanguage? fromLanguage)
-        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="TransliterateAsync(string, string, string)"/>
     async Task<ITransliterationResult> ITranslator.TransliterateAsync(string text, string toLanguage, string? fromLanguage)
-        => await TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="TransliterateAsync(string, ILanguage, ILanguage)"/>
     async Task<ITransliterationResult> ITranslator.TransliterateAsync(string text, ILanguage toLanguage, ILanguage? fromLanguage)
-        => await TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="DetectLanguageAsync(string)"/>
-    async Task<ILanguage> ITranslator.DetectLanguageAsync(string text) => await DetectLanguageAsync(text).ConfigureAwait(false);
+    async Task<ILanguage> ITranslator.DetectLanguageAsync(string text) => await DetectLanguageAsync(text).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="IsLanguageSupported(Language)"/>
     bool ITranslator.IsLanguageSupported(ILanguage language) => language is Language lang && IsLanguageSupported(lang);

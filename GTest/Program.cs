@@ -10,7 +10,7 @@ namespace GTest
 		private static async Task Main()
 		{
 			Console.WriteLine("Translator Example\n");
-			var translator = new AggregateTranslator();
+			var translator = new AggregateTranslator(true);
 
 			while (true)
 			{

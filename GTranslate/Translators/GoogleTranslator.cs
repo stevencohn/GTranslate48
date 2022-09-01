@@ -86,7 +86,7 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageFound(fromLanguage, out var fromLang, "Unknown source language.");
         TranslatorGuards.LanguageSupported(this, toLang, fromLang);
 
-        return await TranslateAsync(text, toLang, fromLang).ConfigureAwait(false);
+        return await TranslateAsync(text, toLang, fromLang).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TranslateAsync(string, string, string)"/>
@@ -114,10 +114,10 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
             Content = content
         };
 
-        using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request).ConfigureAwait(AggregateTranslator.STA);
         response.EnsureSuccessStatusCode();
-        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
+        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(AggregateTranslator.STA);
 
         var sentences = document.RootElement.GetProperty("sentences");
         if (sentences.ValueKind != JsonValueKind.Array)
@@ -155,7 +155,7 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageFound(fromLanguage, out var fromLang, "Unknown source language.");
         TranslatorGuards.LanguageSupported(this, toLang, fromLang);
 
-        return await TransliterateAsync(text, toLang, fromLang).ConfigureAwait(false);
+        return await TransliterateAsync(text, toLang, fromLang).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TransliterateAsync(string, string, string)"/>
@@ -166,7 +166,7 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
         TranslatorGuards.NotNull(toLanguage);
         TranslatorGuards.LanguageSupported(this, toLanguage, fromLanguage);
 
-        var result = await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        var result = await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
         if (string.IsNullOrEmpty(result.Transliteration))
         {
             throw new TranslatorException("Failed to get the transliteration.", Name);
@@ -187,7 +187,7 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
     {
         TranslatorGuards.NotNull(text);
 
-        var result = await TranslateAsync(text, "en").ConfigureAwait(false);
+        var result = await TranslateAsync(text, "en").ConfigureAwait(AggregateTranslator.STA);
         if (result.SourceLanguage is null)
         {
             throw new TranslatorException("Failed to get the detected language.", Name);
@@ -214,7 +214,7 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
         TranslatorGuards.NotNull(language);
         TranslatorGuards.LanguageFound(language, out var lang);
 
-        return await TextToSpeechAsync(text, lang, speed).ConfigureAwait(false);
+        return await TextToSpeechAsync(text, lang, speed).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TextToSpeechAsync(string, string, float)"/>
@@ -233,7 +233,7 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
         }
 
         // Send requests and parse responses in parallel
-        var chunks = await Task.WhenAll(tasks).ConfigureAwait(false);
+        var chunks = await Task.WhenAll(tasks).ConfigureAwait(AggregateTranslator.STA);
 
         return chunks.AsReadOnlySequence().AsStream();
 
@@ -243,7 +243,7 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
             string token = MakeToken(textChunk.Span);
 
             string url = $"{_ttsApiEndpoint}?ie=UTF-8&q={escapedText}&tl={language.ISO6391}&ttsspeed={speed}&total={total}&idx={index}&client=tw-ob&textlen={textChunk.Length}&tk={token}";
-            return await _httpClient.GetByteArrayAsync(new Uri(url)).ConfigureAwait(false);
+            return await _httpClient.GetByteArrayAsync(new Uri(url)).ConfigureAwait(AggregateTranslator.STA);
         }
     }
 
@@ -272,22 +272,22 @@ public sealed class GoogleTranslator : ITranslator, IDisposable
 
     /// <inheritdoc cref="TranslateAsync(string, string, string)"/>
     async Task<ITranslationResult> ITranslator.TranslateAsync(string text, string toLanguage, string? fromLanguage)
-        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="TranslateAsync(string, ILanguage, ILanguage)"/>
     async Task<ITranslationResult> ITranslator.TranslateAsync(string text, ILanguage toLanguage, ILanguage? fromLanguage)
-        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="TransliterateAsync(string, string, string)"/>
     async Task<ITransliterationResult> ITranslator.TransliterateAsync(string text, string toLanguage, string? fromLanguage)
-        => await TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="TransliterateAsync(string, ILanguage, ILanguage)"/>
     async Task<ITransliterationResult> ITranslator.TransliterateAsync(string text, ILanguage toLanguage, ILanguage? fromLanguage)
-        => await TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TransliterateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="DetectLanguageAsync(string)"/>
-    async Task<ILanguage> ITranslator.DetectLanguageAsync(string text) => await DetectLanguageAsync(text).ConfigureAwait(false);
+    async Task<ILanguage> ITranslator.DetectLanguageAsync(string text) => await DetectLanguageAsync(text).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="IsLanguageSupported(Language)"/>
     bool ITranslator.IsLanguageSupported(ILanguage language) => language is Language lang && IsLanguageSupported(lang);

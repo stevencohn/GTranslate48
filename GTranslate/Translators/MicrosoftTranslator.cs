@@ -174,7 +174,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageFound(fromLanguage, out var fromLang, "Unknown source language.");
         TranslatorGuards.LanguageSupported(this, toLang, fromLang);
 
-        return await TranslateAsync(text, toLang, fromLang).ConfigureAwait(false);
+        return await TranslateAsync(text, toLang, fromLang).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TranslateAsync(string, string, string)"/>
@@ -185,7 +185,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         TranslatorGuards.NotNull(toLanguage);
         TranslatorGuards.LanguageSupported(this, toLanguage, fromLanguage);
 
-        var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(false);
+        var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(AggregateTranslator.STA);
         string url = $"{_apiEndpoint}/translate?api-version={_apiVersion}&to={MicrosoftHotPatch(toLanguage.ISO6391)}";
         if (fromLanguage is not null)
         {
@@ -201,11 +201,11 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authInfo.Token);
         request.Content = new StringContent($"[{{\"Text\":\"{text.AsSpan().SafeJsonTextEncode()}\"}}]", Encoding.UTF8, "application/json");
 
-        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(AggregateTranslator.STA);
         response.EnsureSuccessStatusCode();
 
-        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
+        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(AggregateTranslator.STA);
 
         var root = document.RootElement[0];
 
@@ -242,7 +242,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         TranslatorGuards.LanguageFound(language, out var lang);
         TranslatorGuards.LanguageSupported(this, lang);
 
-        return await TransliterateAsync(text, lang, fromScript, toScript).ConfigureAwait(false);
+        return await TransliterateAsync(text, lang, fromScript, toScript).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <inheritdoc cref="TransliterateAsync(string, string, string, string)"/>
@@ -255,7 +255,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         TranslatorGuards.NotNull(toScript);
         EnsureValidScripts(language.ISO6391, fromScript, toScript);
 
-        var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(false);
+        var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(AggregateTranslator.STA);
 
         using var request = new HttpRequestMessage
         {
@@ -266,11 +266,11 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authInfo.Token);
         request.Content = new StringContent($"[{{\"Text\":\"{text.AsSpan().SafeJsonTextEncode()}\"}}]", Encoding.UTF8, "application/json");
 
-        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(AggregateTranslator.STA);
         response.EnsureSuccessStatusCode();
 
-        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
+        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(AggregateTranslator.STA);
 
         var root = document.RootElement[0];
         string transliteration = root.GetProperty("text").GetString() ?? throw new TranslatorException("Failed to get the transliteration.", Name);
@@ -292,7 +292,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         TranslatorGuards.ObjectNotDisposed(this, _disposed);
         TranslatorGuards.NotNull(text);
 
-        var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(false);
+        var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(AggregateTranslator.STA);
 
         using var request = new HttpRequestMessage
         {
@@ -303,11 +303,11 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authInfo.Token);
         request.Content = new StringContent($"[{{\"Text\":\"{text.AsSpan().SafeJsonTextEncode()}\"}}]", Encoding.UTF8, "application/json");
 
-        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(AggregateTranslator.STA);
         response.EnsureSuccessStatusCode();
 
-        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
+        using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(AggregateTranslator.STA);
 
         string language = document.RootElement[0].GetProperty("language").GetString() ?? throw new TranslatorException("Failed to get the detected language.", Name);
 
@@ -332,7 +332,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         TranslatorGuards.NotNull(language);
         EnsureValidTTSLanguage(language, out var voice);
 
-        return await TextToSpeechAsync(text, voice, speakRate).ConfigureAwait(false);
+        return await TextToSpeechAsync(text, voice, speakRate).ConfigureAwait(AggregateTranslator.STA);
     }
 
     /// <summary>
@@ -352,7 +352,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         TranslatorGuards.NotNull(text);
         TranslatorGuards.NotNull(voice);
         
-        var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(false);
+        var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(AggregateTranslator.STA);
 
         string payload = $"<speak version='1.0' xml:lang='{voice.Locale}'><voice xml:lang='{voice.Locale}' xml:gender='{voice.Gender}' name='{voice.ShortName}'><prosody rate='{speakRate}'>{_ssmlEncoder.Encode(text)}</prosody></voice></speak>";
 
@@ -366,10 +366,10 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authInfo.Token);
         request.Headers.Add("X-Microsoft-OutputFormat", "audio-16khz-32kbitrate-mono-mp3");
 
-        var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+        var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(AggregateTranslator.STA);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        return await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
     }
 
     // https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#text-to-speech
@@ -388,7 +388,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
             return _voices;
         }
 
-        await _voicesSemaphore.WaitAsync().ConfigureAwait(false);
+        await _voicesSemaphore.WaitAsync().ConfigureAwait(AggregateTranslator.STA);
 
         try
         {
@@ -397,16 +397,16 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
                 return _voices;
             }
 
-            var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(false);
+            var authInfo = await GetOrUpdateMicrosoftAuthTokenAsync().ConfigureAwait(AggregateTranslator.STA);
 
             using var request = new HttpRequestMessage(HttpMethod.Get, new Uri($"https://{authInfo.Region}.tts.speech.microsoft.com/cognitiveservices/voices/list"));
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authInfo.Token);
 
-            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(AggregateTranslator.STA);
             response.EnsureSuccessStatusCode();
 
-            using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            _voices = await JsonSerializer.DeserializeAsync<MicrosoftVoice[]>(stream).ConfigureAwait(false) ?? throw new TranslatorException("Failed to deserialize voice list.", Name);
+            using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
+            _voices = await JsonSerializer.DeserializeAsync<MicrosoftVoice[]>(stream).ConfigureAwait(AggregateTranslator.STA) ?? throw new TranslatorException("Failed to deserialize voice list.", Name);
         }
         finally
         {
@@ -439,7 +439,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
             return _cachedAuthTokenInfo.Value;
         }
 
-        await _authTokenInfoSemaphore.WaitAsync().ConfigureAwait(false);
+        await _authTokenInfoSemaphore.WaitAsync().ConfigureAwait(AggregateTranslator.STA);
 
         try
         {
@@ -448,7 +448,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
                 return _cachedAuthTokenInfo.Value;
             }
 
-            var bingCredentials = await GetOrUpdateBingCredentialsAsync().ConfigureAwait(false);
+            var bingCredentials = await GetOrUpdateBingCredentialsAsync().ConfigureAwait(AggregateTranslator.STA);
 
             var data = new Dictionary<string, string>
             {
@@ -458,12 +458,12 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
 
             using var content = new FormUrlEncodedContent(data);
             var uri = new Uri($"{BingTranslator.HostUrl}/tfetspktok?isVertical=1&IG={bingCredentials.ImpressionGuid.ToString("N").ToUpperInvariant()}&IID={BingTranslator.Iid}");
-            using var response = await _httpClient.PostAsync(uri, content).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(uri, content).ConfigureAwait(AggregateTranslator.STA);
             response.EnsureSuccessStatusCode();
-            using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(AggregateTranslator.STA);
 
             // Bing Translator always return status code 200 regardless of the content
-            using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+            using var document = await JsonDocument.ParseAsync(stream).ConfigureAwait(AggregateTranslator.STA);
             var root = document.RootElement;
 
             TranslatorGuards.ThrowIfStatusCodeIsPresent(root);
@@ -511,11 +511,11 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
 
     /// <inheritdoc cref="TranslateAsync(string, string, string)"/>
     async Task<ITranslationResult> ITranslator.TranslateAsync(string text, string toLanguage, string? fromLanguage)
-        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="TranslateAsync(string, ILanguage, ILanguage)"/>
     async Task<ITranslationResult> ITranslator.TranslateAsync(string text, ILanguage toLanguage, ILanguage? fromLanguage)
-        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(false);
+        => await TranslateAsync(text, toLanguage, fromLanguage).ConfigureAwait(AggregateTranslator.STA);
 
     Task<ITransliterationResult> ITranslator.TransliterateAsync(string text, string toLanguage, string? fromLanguage)
         => throw new NotSupportedException("This translator does not support transliteration via languages.");
@@ -524,7 +524,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
         => throw new NotSupportedException("This translator does not support transliteration via languages.");
 
     /// <inheritdoc cref="DetectLanguageAsync(string)"/>
-    async Task<ILanguage> ITranslator.DetectLanguageAsync(string text) => await DetectLanguageAsync(text).ConfigureAwait(false);
+    async Task<ILanguage> ITranslator.DetectLanguageAsync(string text) => await DetectLanguageAsync(text).ConfigureAwait(AggregateTranslator.STA);
 
     /// <inheritdoc cref="IsLanguageSupported(Language)"/>
     bool ITranslator.IsLanguageSupported(ILanguage language) => language is Language lang && IsLanguageSupported(lang);
@@ -611,7 +611,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
             return _cachedCredentials.Value;
         }
 
-        await _credentialsSemaphore.WaitAsync().ConfigureAwait(false);
+        await _credentialsSemaphore.WaitAsync().ConfigureAwait(AggregateTranslator.STA);
 
         try
         {
@@ -620,7 +620,7 @@ public sealed class MicrosoftTranslator : ITranslator, IDisposable
                 return _cachedCredentials.Value;
             }
 
-            _cachedCredentials = await BingTranslator.GetCredentialsAsync(this, _httpClient).ConfigureAwait(false);
+            _cachedCredentials = await BingTranslator.GetCredentialsAsync(this, _httpClient).ConfigureAwait(AggregateTranslator.STA);
         }
         finally
         {
