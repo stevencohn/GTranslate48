@@ -4,6 +4,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -11,8 +12,8 @@
     <ProjectGuid>{6EB9ED73-5511-45E3-AD61-16C0067C68C8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Interpreter</RootNamespace>
-    <AssemblyName>Interpreter</AssemblyName>
+    <RootNamespace>GTranslate</RootNamespace>
+    <AssemblyName>GTranslate</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -89,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="GTranslate.nuspec" />
+    <None Include="readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
