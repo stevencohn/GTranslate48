@@ -14,4 +14,8 @@
     <copyright>$copyright$</copyright>
     <tags>translator translator-api translation translation-api tts text-to-speech</tags>
   </metadata>
+  <files>
+    <file src="readme.md" target="" />
+    <file src=".\bin\Debug\*.dll" target="lib\net48" />
+  </files>
 </package>
