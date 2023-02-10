@@ -19,7 +19,7 @@ public sealed class BingTranslator : ITranslator, IDisposable
     internal const string HostUrl = "https://www.bing.com";
     private static readonly Uri _translatorPageUri = new($"{HostUrl}/translator");
     internal const string Iid = "translator.5023.1";
-    private static readonly byte[] _credentialsStart = Encoding.UTF8.GetBytes("var params_RichTranslateHelper = [");
+    private static readonly byte[] _credentialsStart = Encoding.UTF8.GetBytes("var params_AbusePreventionHelper = [");
     private const string _defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36";
 
     /// <inheritdoc/>
